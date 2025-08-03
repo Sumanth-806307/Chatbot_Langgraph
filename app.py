@@ -29,7 +29,7 @@ if user_input:
     with st.chat_message("user"):
         st.text(user_input)
     
-    response = ChatBot.invoke({'messages':[HumanMessage(content=st.session_state['message_history'])]}, config=config)
+    response = ChatBot.invoke({'messages':[HumanMessage(content=st.session_state['message_history']+user_input)]}, config=config)
     st.session_state['message_history'].append({'role':'assistant','content':response['messages'][-1].content})    
     with st.chat_message("assistant"):
         st.text(response['messages'][-1].content)
