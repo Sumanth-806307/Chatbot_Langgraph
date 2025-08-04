@@ -12,8 +12,7 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver,InMemorySaver
 from chatbot_backend import ChatBot
 
-
-config={'configurable':{'thread_id':'thread_1'}}
+confige={'configurable':{'thread_id':'thread-2'}}
 
 if 'message_history' not in st.session_state:
     st.session_state['message_history']=[]
@@ -29,10 +28,11 @@ if user_input:
     with st.chat_message("user"):
         st.text(user_input)
     
-    response = ChatBot.invoke({'messages':[HumanMessage(content=user_input)]}, config=config)
-    st.session_state['message_history'].append({'role':'assistant','content':response['messages'][-1].content})    
+    response = ChatBot.invoke({'messages':[HumanMessage(content=user_input)]}, config=confige)
+    ai_message=response['messages'][-1].content
+    st.session_state['message_history'].append({'role':'assistant','content':ai_message})    
     with st.chat_message("assistant"):
-        st.text(response['messages'][-1].content)
+        st.text(ai_message)
         
 
 

@@ -11,11 +11,11 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver,InMemorySaver
 
 load_dotenv()
-llm=ChatOpenAI()
-class ChatBot(TypedDict):
-    messages:Annotated[List[BaseMessage],add_messages]
+llm=ChatOpenAI(model='gpt-4o-mini')
+class ChatState(TypedDict):
+    messages: Annotated[list[BaseMessage],add_messages]
     
-def chat_node(state:ChatBot):
+def chat_node(state:ChatState):
     messages = state['messages']
     prompt = f"You are a helpful assistant. Answer the user's question based on the provided messages in crisp and short.{messages}"
     response = llm.invoke(prompt)
@@ -23,7 +23,7 @@ def chat_node(state:ChatBot):
 
 checkpointer = InMemorySaver()
 
-graph = StateGraph(ChatBot)
+graph = StateGraph(ChatState)
 graph.add_node('chat_node',chat_node)
 graph.add_edge(START, 'chat_node')
 graph.add_edge('chat_node', END)
