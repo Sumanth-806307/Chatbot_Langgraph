@@ -11,8 +11,14 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, System
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver,InMemorySaver
 from chatbot_backend import ChatBot
+import uuid
 
-confige={'configurable':{'thread_id':'thread-2'}}
+# Initialize a unique thread ID for the user if it doesn't already exist
+if 'thread_id' not in st.session_state:
+    st.session_state['thread_id'] = str(uuid.uuid4())
+
+# Use the unique thread ID for the LangGraph configuration
+config = {'configurable': {'thread_id': st.session_state['thread_id']}}
 
 if 'message_history' not in st.session_state:
     st.session_state['message_history']=[]
@@ -28,7 +34,7 @@ if user_input:
     with st.chat_message("user"):
         st.text(user_input)
     
-    response = ChatBot.invoke({'messages':[HumanMessage(content=user_input)]}, config=confige)
+    response = ChatBot.invoke({'messages':[HumanMessage(content=user_input)]}, config=config)
     ai_message=response['messages'][-1].content
     st.session_state['message_history'].append({'role':'assistant','content':ai_message})    
     with st.chat_message("assistant"):
