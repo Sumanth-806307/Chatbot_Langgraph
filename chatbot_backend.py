@@ -43,7 +43,7 @@ Final Answer: the final answer
 
 Begin!
 Question: {input}
-{agent_scratchpad}
+Thought:{agent_scratchpad}
 """)
 
 # Create the agent
@@ -56,16 +56,26 @@ class ChatState(TypedDict):
 
 def chat_node(state: ChatState):
     messages = state['messages']
-    
-    # Check if the last message is a ToolMessage
-    if isinstance(messages[-1], ToolMessage):
-        # If it's a tool message, it's a continuation of a tool call
-        result = agent_executor.invoke({'input': messages[-2].content})
-    else:
-        # Otherwise, it's a new conversation
-        result = agent_executor.invoke({'input': messages[-1].content})
 
+    # The agent needs the full list of messages to understand the context.
+    # The agent_executor is designed to handle this list.
+    result = agent_executor.invoke({'input': messages})
+    
+    # Extract the final output as before.
     return {'messages': [AIMessage(content=result['output'])]}
+
+# def chat_node(state: ChatState):
+#     messages = state['messages']
+    
+#     # Check if the last message is a ToolMessage
+#     if isinstance(messages[-1], ToolMessage):
+#         # If it's a tool message, it's a continuation of a tool call
+#         result = agent_executor.invoke({'input': messages[-2].content})
+#     else:
+#         # Otherwise, it's a new conversation
+#         result = agent_executor.invoke({'input': messages[-1].content})
+
+#     return {'messages': [AIMessage(content=result['output'])]}
   
 def should_continue(state: ChatState) -> Literal["tool", "__end__"]:
     messages = state['messages']
