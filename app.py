@@ -37,10 +37,16 @@ def load_conversation(thread_id):
     return []
 
 def load_last_conversation(thread_id):
-    """Loads a conversation from a given thread ID."""
-    state=ChatBot.get_state(config={'configurable': {'thread_id': thread_id}})
-    if state:
-        return state.values['messages'][-2].content
+    """Loads a conversation from a given thread ID and returns a label for the sidebar."""
+    state = ChatBot.get_state(config={'configurable': {'thread_id': thread_id}})
+    if state and state.values['messages']:
+        messages = state.values['messages']
+        # If there are at least two messages, return the second-to-last message (the last user message).
+        # Otherwise, return the very first message as the label.
+        if len(messages) >= 2:
+            return messages[-2].content
+        else:
+            return messages[0].content
     return []
     #return ChatBot.get_state(config={'configurable': {'thread_id': thread_id}}).values['messages']
 
