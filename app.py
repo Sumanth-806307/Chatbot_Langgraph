@@ -4,6 +4,7 @@ import operator
 from typing import TypedDict, Any, Optional, Literal, Annotated, List
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
+import time
 from pydantic import BaseModel, Field
 import json
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
@@ -77,12 +78,15 @@ if st.session_state['thread_id'] not in st.session_state['chat_threads']:
     st.session_state['chat_threads'][st.session_state['thread_id']] = "New Chat"
 
 # --------UI------------
-st.sidebar.title('Langgraph Chatbot')
+st.set_page_config(page_title="QnA ChatBot",page_icon="🗣️",layout="centered")
+st.title("🗣️:red[ChatBot:]")
+
+st.sidebar.title(':red[Langgraph Chatbot]')
 
 if st.sidebar.button('New Chat'):
     reset_chat()
 
-st.sidebar.header("My conversations")
+st.sidebar.header(":red[My conversations]")
 
 # Use a dictionary to store thread IDs and their corresponding button labels
 # We'll update the labels as conversations progress
@@ -112,7 +116,11 @@ user_input = st.chat_input("Type Here")
 
         
 if user_input:
-    config = {'configurable': {'thread_id': st.session_state['thread_id']}}
+    config = {
+        'configurable': {'thread_id': st.session_state['thread_id']},
+        'metadata': {thread_id: st.session_state['thread_id']},
+        'run_name':"chat_turn"
+              }
     
     # Update the button label with the first user input
     if st.session_state['chat_threads'][st.session_state['thread_id']] == "New Chat":
@@ -123,12 +131,21 @@ if user_input:
         st.text(user_input)
     
     with st.chat_message("assistant"):
-        ai_message = st.write_stream(
-            message_chunk.content for message_chunk, metadata in 
-            ChatBot.stream(
-                {'messages': [HumanMessage(content=user_input)]},
-                config=config,
-                stream_mode='messages'
-            )
-        )
+        with st.spinner("Thinking..."):
+        # The code that takes time goes here
+            time.sleep(1)
+            response = ChatBot.invoke({'messages': [HumanMessage(content=user_input)]}, config=config)
+    
+        # This code executes after the spinner disappears
+        ai_message=st.write(response['messages'][-1].content)
+    
+    # with st.chat_message("assistant"):
+    #     ai_message = st.write_stream(
+    #         message_chunk.content for message_chunk, metadata in 
+    #         ChatBot.stream(
+    #             {'messages': [HumanMessage(content=user_input)]},
+    #             config=config,
+    #             stream_mode='messages'
+    #         )
+    #     )
     st.session_state['message_history'].append({'role': 'assistant', 'content': ai_message})
